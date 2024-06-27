@@ -38,7 +38,7 @@ fn dbl(A: &mut ECP2, aa: &mut FP2, bb: &mut FP2, cc: &mut FP2)  {
     bb.copy(&A.getpz()); //Z
 
     aa.copy(&yy); //Y
-    aa.mul(&bb); //YZ
+    aa.mul(bb); //YZ
     cc.sqr(); //X^2
     yy.sqr(); //Y^2
     bb.sqr(); //Z^2
@@ -77,12 +77,12 @@ fn add(A: &mut ECP2, B: &ECP2, aa: &mut FP2, bb: &mut FP2, cc: &mut FP2) {
     t1.mul(&B.getpy()); // T1=Z1.Y2
     bb.mul(&B.getpx()); // T2=Z1.X2
 
-    aa.sub(&bb);
+    aa.sub(bb);
     aa.norm(); // X1=X1-Z1.X2
     cc.sub(&t1);
     cc.norm(); // Y1=Y1-Z1.Y2
 
-    t1.copy(&aa); // T1=X1-Z1.X2
+    t1.copy(aa); // T1=X1-Z1.X2
     if ecp::SEXTIC_TWIST == ecp::M_TYPE {
         aa.mul_ip();
         aa.norm();
@@ -90,7 +90,7 @@ fn add(A: &mut ECP2, B: &ECP2, aa: &mut FP2, bb: &mut FP2, cc: &mut FP2) {
 
     t1.mul(&B.getpy()); // T1=(X1-Z1.X2).Y2
 
-    bb.copy(&cc); // T2=Y1-Z1.Y2
+    bb.copy(cc); // T2=Y1-Z1.Y2
     bb.mul(&B.getpx()); // T2=(Y1-Z1.Y2).X2
     bb.sub(&t1);
     bb.norm(); // T2=(Y1-Z1.Y2).X2 - (X1-Z1.X2).Y2
@@ -157,7 +157,7 @@ fn lineadd(A: &mut ECP2, B: &ECP2, qx: &FP, qy: &FP) -> FP12 {
 
 /* prepare ate parameter, n=6u+2 (BN) or n=u (BLS), n3=3*n */
 #[allow(non_snake_case)]
-fn lbits(n3: &mut BIG,n: &mut BIG) -> usize {
+fn lbits(n3: &mut BIG, n: &mut BIG) -> usize {
     n.copy(&BIG::new_ints(&rom::CURVE_BNX));
     if ecp::CURVE_PAIRING_TYPE==ecp::BN {
         n.pmul(6);
@@ -168,7 +168,7 @@ fn lbits(n3: &mut BIG,n: &mut BIG) -> usize {
         }
     }
     n.norm();
-    n3.copy(&n);
+    n3.copy(n);
     n3.pmul(3);
     n3.norm();
     n3.nbits()
@@ -710,14 +710,14 @@ fn glv(ee: &BIG) -> [BIG; 2] {
 
         for i in 0..2 {
             t.copy(&BIG::new_ints(&rom::CURVE_W[i])); // why not just t=new BIG(ROM.CURVE_W[i]);
-            let mut d: DBIG = BIG::mul(&t, &ee);
+            let mut d: DBIG = BIG::mul(&t, ee);
             v[i].copy(&d.ctdiv(&q,t.nbits()));
         }
-        u[0].copy(&ee);
+        u[0].copy(ee);
         for i in 0..2 {
             for j in 0..2 {
                 t = BIG::new_ints(&rom::CURVE_SB[j][i]);
-                t = BIG::modmul(&mut v[j], &mut t, &q);
+                t = BIG::modmul(&v[j], &t, &q);
                 u[i].add(&q);
                 u[i].sub(&t);
                 u[i].ctmod(&q,1);
@@ -728,9 +728,9 @@ PFBNF */
         let x = BIG::new_ints(&rom::CURVE_BNX);
         let x2 = BIG::smul(&x, &x);
         let bd=q.nbits()-x2.nbits();
-        u[0].copy(&ee);
+        u[0].copy(ee);
         u[0].ctmod(&x2,bd);
-        u[1].copy(&ee);
+        u[1].copy(ee);
         u[1].ctdiv(&x2,bd);
         u[1].rsub(&q);
     }
@@ -749,14 +749,14 @@ pub fn gs(ee: &BIG) -> [BIG; 4] {
         let mut v: [BIG; 4] = [BIG::new(), BIG::new(), BIG::new(), BIG::new()];
         for i in 0..4 {
             t.copy(&BIG::new_ints(&rom::CURVE_WB[i]));
-            let mut d: DBIG = BIG::mul(&t, &ee);
+            let mut d: DBIG = BIG::mul(&t, ee);
             v[i].copy(&d.ctdiv(&q,t.nbits()));
         }
-        u[0].copy(&ee);
+        u[0].copy(ee);
         for i in 0..4 {
             for j in 0..4 {
                 t = BIG::new_ints(&rom::CURVE_BB[j][i]);
-                t = BIG::modmul(&mut v[j], &mut t, &q);
+                t = BIG::modmul(&v[j], &t, &q);
                 u[i].add(&q);
                 u[i].sub(&t);
                 u[i].ctmod(&q,1);
@@ -767,7 +767,7 @@ PFBNF */
         let x = BIG::new_ints(&rom::CURVE_BNX);
         let bd=q.nbits()-x.nbits();  // fixed
 
-        let mut w = BIG::new_copy(&ee);
+        let mut w = BIG::new_copy(ee);
         for i in 0..3 {
             u[i].copy(&w);
             u[i].ctmod(&x,bd);
@@ -846,7 +846,7 @@ pub fn g2mul(P: &ECP2, e: &BIG) -> ECP2 {
         }
 
         let mut t = BIG::new();
-        Q[0].copy(&P);
+        Q[0].copy(P);
         for i in 1..4 {
             T.copy(&Q[i - 1]);
             Q[i].copy(&T);
@@ -885,7 +885,7 @@ pub fn gtpow(d: &FP12, e: &BIG) -> FP12 {
         let mut u = gs(&ee);
         let mut w = FP12::new();
 
-        g[0].copy(&d);
+        g[0].copy(d);
         for i in 1..4 {
             w.copy(&g[i - 1]);
             g[i].copy(&w);
@@ -986,20 +986,17 @@ pub fn gtcyclotomic(m: &FP12) -> bool {
     if m.isunity() {
         return false;
     }
-    let mut r = FP12::new_copy(&m);
+    let mut r = FP12::new_copy(m);
     r.conj();
-    r.mul(&m);
+    r.mul(m);
     if !r.isunity() {
         return false;
     }
     let f = FP2::new_bigs(&BIG::new_ints(&rom::FRA), &BIG::new_ints(&rom::FRB));
-    r.copy(&m); r.frob(&f); r.frob(&f);
+    r.copy(m); r.frob(&f); r.frob(&f);
     let mut w = FP12::new_copy(&r); w.frob(&f); w.frob(&f);
-    w.mul(&m);
-    if !w.equals(&r) {
-        return false;
-    }
-    return true;
+    w.mul(m);
+    w.equals(&r)
 }
 
 /* test for full GT group membership */

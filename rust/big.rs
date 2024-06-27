@@ -201,7 +201,7 @@ impl BIG {
             e=b.w[i]^t;  w^=e;
             b.w[i]=e^ra;
         }
-        return w;
+        w
     }
 
     pub fn cmove(&mut self, g: &BIG, d: isize)  -> Chunk {
@@ -215,7 +215,7 @@ impl BIG {
             let e=self.w[i]^t; w^=e;
             self.w[i]=e^ra; 
         }
-        return w;
+        w
     }
 
     /* Shift right by less than a word */
@@ -274,7 +274,7 @@ impl BIG {
     /* return number of bits */
     pub fn nbits(&self) -> usize {
         let mut k = NLEN - 1;
-        let mut s = BIG::new_copy(&self);
+        let mut s = BIG::new_copy(self);
         s.norm();
         while (k as isize) >= 0 && s.w[k] == 0 {
             k = k.wrapping_sub(1)
@@ -407,7 +407,7 @@ impl BIG {
         let mut c = BIG::new_copy(self);
         c.norm();
 
-        for i in (0..(MODBYTES as usize)).rev() {
+        for i in (0..MODBYTES).rev() {
             b[i + n] = (c.w[0] & 0xff) as u8;
             c.fshr(8);
         }
@@ -416,7 +416,7 @@ impl BIG {
     /* convert from byte array to BIG */
     pub fn frombytearray(b: &[u8], n: usize) -> BIG {
         let mut m = BIG::new();
-        for i in 0..(MODBYTES as usize) {
+        for i in 0..MODBYTES {
             m.fshl(8);
             m.w[0] += b[i + n] as Chunk;
         }
@@ -553,10 +553,10 @@ impl BIG {
 
     /* return n-th bit */
     pub fn bit(&self, n: usize) -> isize {
-        return ((self.w[n / (BASEBITS as usize)] & (1 << (n % BASEBITS))) >> (n%BASEBITS)) as isize;
+        ((self.w[n / BASEBITS] & (1 << (n % BASEBITS))) >> (n%BASEBITS)) as isize
 
 
- //       if (self.w[n / (BASEBITS as usize)] & (1 << (n % BASEBITS))) > 0 {
+ //       if (self.w[n / BASEBITS] & (1 << (n % BASEBITS))) > 0 {
 //            1
 //        } else {
 //            0
@@ -684,7 +684,7 @@ impl BIG {
         let mut r: u8 = 0;
         /* generate random BIG */
 
-        for _ in 0..8 * (MODBYTES as usize) {
+        for _ in 0..8 * MODBYTES {
             if j == 0 {
                 r = rng.getbyte()
             } else {

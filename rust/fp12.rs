@@ -396,7 +396,7 @@ impl FP12 {
     /* Usually w is denser than y */
     pub fn ssmul(&mut self, y: &FP12) {
         if self.stype == ONE {
-            self.copy(&y);
+            self.copy(y);
             return;
         }
         if y.stype == ONE {
@@ -515,7 +515,7 @@ impl FP12 {
             self.a.add(&z3);
         } else {
             if self.stype == SPARSER || self.stype == SPARSEST {
-                self.smul(&y);
+                self.smul(y);
                 return;
             }
             if ecp::SEXTIC_TWIST == ecp::D_TYPE {
@@ -870,7 +870,7 @@ impl FP12 {
 
     /* convert from byte array to FP12 */
     pub fn frombytes(w: &[u8]) -> FP12 {
-        const MB:usize = 4*(big::MODBYTES as usize);
+        const MB: usize = 4* big::MODBYTES;
         let mut t: [u8; MB] = [0; MB];
 	    for i in 0..MB {
 		    t[i]=w[i];
@@ -889,7 +889,7 @@ impl FP12 {
 
     /* convert this to byte array */
     pub fn tobytes(&mut self, w: &mut [u8]) {
-        const MB:usize = 4*(big::MODBYTES as usize);
+        const MB: usize = 4 * big::MODBYTES;
         let mut t: [u8; MB] = [0; MB];
 
         self.c.tobytes(&mut t);
@@ -974,12 +974,12 @@ impl FP12 {
         let mut g2 = FP12::new_copy(self);
 
         let mut m = BIG::new_copy(&q);
-        m.rmod(&r);
+        m.rmod(r);
 
-        let mut a = BIG::new_copy(&e);
+        let mut a = BIG::new_copy(e);
         a.rmod(&m);
 
-        let mut b = BIG::new_copy(&e);
+        let mut b = BIG::new_copy(e);
         b.div(&m);
 
         let mut c = g1.trace();
@@ -1018,7 +1018,7 @@ impl FP12 {
 
         let mut r = FP12::new();
         let mut p = FP12::new();
-        const CT: usize = 1 + big::NLEN * (big::BASEBITS as usize);
+        const CT: usize = 1 + big::NLEN * big::BASEBITS;
         let mut w: [i8; CT] = [0; CT];
         let mut s: [i8; CT] = [0; CT];
 
